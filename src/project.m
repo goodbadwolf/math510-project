@@ -11,7 +11,7 @@ window_size_samples = int64(floor((window_size_ms / 1000) * sample_rate));
 [S, F, T] = spectrogram(audio, window_size_samples, [], [], sample_rate);
 
 [num_sft_freqs, num_sft_samples] = size(S);
-
+S = 20*log10(abs(S))
 %Set up the convolution filter constants - tau_1, tau_2 and A, according to
 %Eq. 2.47 of the book
 tau = 10;
@@ -41,12 +41,22 @@ y_t_OFF = complex(a,0)
 
 for i = 1:num_sft_samples
     for j = -floor(size(K_on)/2):floor(size(K_on)/2)
-        % Check bounds
+        % Check bounds for S(F,T) array
         if ((i-j) >= 1) && ((i-j) <= num_sft_samples)
-            on_filter = K_on(1,j+floor(size(K_on)/2) + 1)
-            off_filter = K_off(1,j+floor(size(K_off)/2) + 1)
+            on_filter = K_on(j+floor(size(K_on)/2) + 1)
+            off_filter = K_off(j+floor(size(K_off)/2) + 1)
             y_t_ON(i) = on_filter(1)*S(freq_row,i-j)
             y_t_OFF(i) = off_filter(1)*S(freq_row,i-j)
         end
     end
 end
+
+%Now that we have the convolved output, apply non-linearities on it
+non_linear_ON = max(0, y_t_ON)
+non_linear_OFF = max(0, y_t_OFF)
+cross_corr_ON_ON = xcorr(non_linear_ON, non_linear_ON)
+cross_corr_OFF_OFF = xcorr(non_linear_OFF, non_linear_OFF)
+cross_corr_ON_OFF = xcorr(non_linear_ON, non_linear_OFF)
+plot(cross_corr_ON_ON)
+plot(cross_corr_OFF_OFF)
+plot(cross_corr_ON_OFF)
