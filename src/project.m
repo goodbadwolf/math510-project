@@ -36,13 +36,17 @@ end
 %the F array gathered above
 freq_row = 100
 a = zeros(1, num_sft_samples)
-y_t = complex(a,0)
+y_t_ON = complex(a,0)
+y_t_OFF = complex(a,0)
 
 for i = 1:num_sft_samples
     for j = -floor(size(K_on)/2):floor(size(K_on)/2)
         % Check bounds
         if ((i-j) >= 1) && ((i-j) <= num_sft_samples)
-            res = K_on(j+floor(size(K_on)/2) + 1)*S(freq_row,i-j)
+            on_filter = K_on(1,j+floor(size(K_on)/2) + 1)
+            off_filter = K_off(1,j+floor(size(K_off)/2) + 1)
+            y_t_ON(i) = on_filter(1)*S(freq_row,i-j)
+            y_t_OFF(i) = off_filter(1)*S(freq_row,i-j)
         end
     end
 end
