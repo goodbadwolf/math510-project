@@ -31,12 +31,18 @@ for i = 1:2 * tau + 1
     K_off(i) = -K_on(i);
 end
 
+
 %Perform the convolution for a selected frequency (denoted by freq_row in
 %the F array gathered above
-freq_row = 100;
+freq_row = 100
+a = zeros(1, num_sft_samples)
+y_t = complex(a,0)
+
 for i = 1:num_sft_samples
-    dot_product = 0;
     for j = -floor(size(K_on)/2):floor(size(K_on)/2)
-        dot_product = dot_product + K_on(j+floor(size(K_on)/2) + 1)*S(freq_row,i)
+        % Check bounds
+        if ((i-j) >= 1) && ((i-j) <= num_sft_samples)
+            res = K_on(j+floor(size(K_on)/2) + 1)*S(freq_row,i-j)
+        end
     end
 end
