@@ -3,12 +3,13 @@
 [num_samples, num_channels] = size(audio);
 
 %Window size is 50 ms or 800 samples at a sampling rate of 16000
-%Instead of default overlap, window overlap should be 1 ms ==> ~3000 results
+
 window_size_ms = 50.0;
 window_size_samples = int64(floor((window_size_ms / 1000) * sample_rate));
 
 %Perform the windowed FFT, and gather the S(F,T), F, and T arrays
 %seperately
+%Instead of default overlap, window overlap should be 1 ms ==> ~3000 results
 [S, F, T] = spectrogram(audio, window_size_samples, [], [], sample_rate);
 
 [num_sft_freqs, num_sft_samples] = size(S);
@@ -44,7 +45,7 @@ a = zeros(1, num_sft_samples)
 y_t_ON = complex(a,0)
 y_t_OFF = complex(a,0)
 
-%Convolution - use default option from matlab
+%Convolution - use default option from matlab, ditch this
 for i = 1:num_sft_samples
     for j = -floor(size(K_on)/2):floor(size(K_on)/2)
         % Check bounds for S(F,T) array
@@ -58,7 +59,8 @@ for i = 1:num_sft_samples
 end
 
 %Now that we have the convolved output, apply non-linearities on it
-non_linear_ON = max(0, y_t_ON) % For now, apply only RELU
+%For now, apply only RELU
+non_linear_ON = max(0, y_t_ON)
 non_linear_OFF = max(0, y_t_OFF)
 cross_corr_ON_ON = xcorr(non_linear_ON, non_linear_ON)
 cross_corr_OFF_OFF = xcorr(non_linear_OFF, non_linear_OFF)
