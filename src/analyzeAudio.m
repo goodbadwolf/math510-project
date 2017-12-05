@@ -1,5 +1,5 @@
 %Extract the audio samples from the file
-function analyzeAudio(frequency_index, tau1_value)
+function analyzeAudio(frequency_index)
     [audio, sample_rate] = audioread('../timit/lisa/data/timit/raw/TIMIT/TRAIN/DR1/FCJF0/SA1.WAV');
     [num_samples, num_channels] = size(audio);
 
@@ -24,8 +24,8 @@ function analyzeAudio(frequency_index, tau1_value)
     %Set up the convolution filter constants - tau_1, tau_2 and A, according to
     %Eq. 2.47 of the book
     %tau_2 should be greater that tau_1
-    %Experiment with tau_1 = 5, 10 ms
-    tau_1 = tau1_value;
+    %Experiment with tau_1 = 5 ms
+    tau_1 = 5;
     tau_2 = tau_1 * 5;
     alpha = 1 / tau_1;
     beta = 1 / tau_2;
@@ -62,7 +62,7 @@ function analyzeAudio(frequency_index, tau1_value)
     
     %Plot the graphs
     figure(1)
-    plot(LAG_ON,autocorr_ON)
+    plot(LAG_ON, autocorr_ON)
     title('Autocorrelation in output after applying ON filter and RELU non-linearity')
     xlabel('Lag in number of samples (1 sample = +-0.0625 ms)')
     ylabel('Autocorrelation normalized to 1')
