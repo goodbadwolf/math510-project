@@ -45,22 +45,29 @@ end
 
 %Perform the convolution for a selected frequency (denoted by freq_row in
 %the F array gathered above
-%Frequency should be 200,400,800,1600
-freq_row = 100
+%Frequency should be 200,400,800,1600 corresponding to 14th, 27th, 52nd,
+%104th rows in the 'F' array that we store above
+freq_row_array = [14, 27, 52, 104]
 a = zeros(1, num_sft_samples)
 
 %Perform the convolution using the default MATLAB built-in
-y_t_ON = conv(K_on, S(freq_row, :))
-y_t_OFF = conv(K_off, S(freq_row, :))
+y_t_ON = conv(K_on, S(freq_row_array(1), :))
+y_t_OFF = conv(K_off, S(freq_row_array(1), :))
 %Now that we have the convolved output, apply non-linearities on it
 %For now, apply only RELU
 non_linear_ON = max(0, y_t_ON)
 non_linear_OFF = max(0, y_t_OFF)
-cross_corr_ON_ON = xcorr(non_linear_ON, non_linear_ON)
-cross_corr_OFF_OFF = xcorr(non_linear_OFF, non_linear_OFF)
-cross_corr_ON_OFF = xcorr(non_linear_ON, non_linear_OFF)
-plot(cross_corr_ON_ON)
-plot(cross_corr_OFF_OFF)
-plot(cross_corr_ON_OFF)
+[autocorr_ON, LAG_ON] = xcorr(non_linear_ON,'coeff')
+[autocorr_OFF, LAG_OFF] = xcorr(non_linear_OFF,'coeff')
+[cross_corr_ON_OFF, LAG_ON_OFF] = xcorr(non_linear_ON, non_linear_OFF,'coeff')
+figure(1)
+plot(LAG_ON,autocorr_ON)
+figure(2)
+plot(LAG_OFF, autocorr_OFF)
+figure(3)
+plot(LAG_ON_OFF, cross_corr_ON_OFF)
 %Make a historgram of the output of the non_linearity
+figure(4)
+histogram(non_linear_ON)
+figure(5)
 histogram(non_linear_OFF)
